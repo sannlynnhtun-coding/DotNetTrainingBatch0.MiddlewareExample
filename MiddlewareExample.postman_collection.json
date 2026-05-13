@@ -1,0 +1,94 @@
+{
+	"info": {
+		"_postman_id": "c2b3a4d5-e6f7-4a1b-9c8d-7e6f5a4b3c2d",
+		"name": "Middleware Example API",
+		"description": "Postman collection for testing ASP.NET Core Middleware (Global Exceptions, Logging, Custom Headers)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Weather Forecast",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"pm.test(\"Check Custom Headers (Middleware)\", function () {",
+							"    pm.response.to.have.header(\"X-App-Name\", \"MiddlewareExample\");",
+							"    pm.response.to.have.header(\"X-Executed-At\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/weatherforecast",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"weatherforecast"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Error (Global Exception Handler)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 500\", function () {",
+							"    pm.response.to.have.status(500);",
+							"});",
+							"pm.test(\"Check error response structure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.StatusCode).to.eql(500);",
+							"    pm.expect(jsonData.Message).to.eql(\"Internal Server Error from the custom middleware.\");",
+							"    pm.expect(jsonData.Detailed).to.eql(\"This is a test exception!\");",
+							"});",
+							"pm.test(\"Check Custom Headers on Error\", function () {",
+							"    pm.response.to.have.header(\"X-App-Name\", \"MiddlewareExample\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/error",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"error"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5179",
+			"type": "string"
+		}
+	]
+}
